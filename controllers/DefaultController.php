@@ -5,6 +5,9 @@ namespace app\controllers;
 use app\models\Status;
 use app\models\Transition;
 use app\models\Workflow;
+use app\models\WfWorkflow;
+use app\models\WfProceso;
+use app\models\WfFlujo;
 use Yii;
 use yii\web\Controller;
 use yii\web\HttpException;
@@ -68,8 +71,71 @@ class DefaultController extends Controller
      */
     public function actionCreate()
     {
-        $model = new Workflow;
+        $model = new Workflow();
+        $model1 = new WfWorkflow();
         if ($model->load($_POST) && $model->save()) {
+            $model1->idRadiRadicado = 6;
+            $model1->descripcion = "descricion de prueba";
+            if($model1->save()) {
+                $params = Yii::$app->params['Workflow_procesos'];
+                foreach ($params as $key => $param) {
+                    $model2 = new WfProceso();
+                    $model2->idwfWorkflow = $model1->idwfWorkflow;
+                    $model2->nameradiTransaccion =  $param;
+                    $model2->order_wfProceso = $key;
+                    $model2->save();
+                }
+            }
+            $vector = [];
+            $procesos = WfProceso::find()->select(['idwfProceso'])->where(['idwfWorkflow' => $model1->idwfWorkflow])->all();
+            foreach ($procesos as $proceso) {
+                $vector[] = $proceso->idwfProceso;
+            }
+            $modelflujo = new WfFlujo();
+            $modelflujo->idwfWorkflow = $model1->idwfWorkflow;
+            $modelflujo->start_idwfProceso = $vector[0];
+            $modelflujo->end_idwfProceso = $vector[1];
+            $modelflujo->save();
+            $modelflujo = new WfFlujo();
+            $modelflujo->idwfWorkflow = $model1->idwfWorkflow;
+            $modelflujo->start_idwfProceso = $vector[1];
+            $modelflujo->end_idwfProceso = $vector[2];
+            $modelflujo->save();
+            $modelflujo = new WfFlujo();
+            $modelflujo->idwfWorkflow = $model1->idwfWorkflow;
+            $modelflujo->start_idwfProceso = $vector[2];
+            $modelflujo->end_idwfProceso = $vector[5];
+            $modelflujo->save();
+            $modelflujo = new WfFlujo();
+            $modelflujo->idwfWorkflow = $model1->idwfWorkflow;
+            $modelflujo->start_idwfProceso = $vector[0];
+            $modelflujo->end_idwfProceso = $vector[3];
+            $modelflujo->save();
+            $modelflujo = new WfFlujo();
+            $modelflujo->idwfWorkflow = $model1->idwfWorkflow;
+            $modelflujo->start_idwfProceso = $vector[3];
+            $modelflujo->end_idwfProceso = $vector[4];
+            $modelflujo->save();
+            $modelflujo = new WfFlujo();
+            $modelflujo->idwfWorkflow = $model1->idwfWorkflow;
+            $modelflujo->start_idwfProceso = $vector[4];
+            $modelflujo->end_idwfProceso = $vector[5];
+            $modelflujo->save();
+            $modelflujo = new WfFlujo();
+            $modelflujo->idwfWorkflow = $model1->idwfWorkflow;
+            $modelflujo->start_idwfProceso = $vector[5];
+            $modelflujo->end_idwfProceso = $vector[6];
+            $modelflujo->save();
+            $modelflujo = new WfFlujo();
+            $modelflujo->idwfWorkflow = $model1->idwfWorkflow;
+            $modelflujo->start_idwfProceso = $vector[6];
+            $modelflujo->end_idwfProceso = $vector[7];
+            $modelflujo->save();
+            $modelflujo = new WfFlujo();
+            $modelflujo->idwfWorkflow = $model1->idwfWorkflow;
+            $modelflujo->start_idwfProceso = $vector[7];
+            $modelflujo->end_idwfProceso = $vector[8];
+            $modelflujo->save();
             return $this->redirect(['view', 'id' => $model->id]);
         }
         return $this->render('create', ['model' => $model]);
@@ -153,4 +219,72 @@ class DefaultController extends Controller
             throw new HttpException(404, 'The requested page does not exist.');
         }
     }
+
+    public function actionCombinarCorrespondencia(){
+        $id = WfProceso::findOne(['idRadiRadicado' => 6]);
+        $status = WfProceso::findOne(['order_wfProceso' => 2, 'idwfWorkflow' => $id->idRadiRadicado]);
+        $status->estadoWfProceso = 10;
+        $status->save();
+    }
+
+    public function actionFirmarCorrespondencia(){
+        $id = WfProceso::findOne(['idRadiRadicado' => 6]);
+        $status_end = WfProceso::findOne(['order_wfProceso' => 2, 'idwfWorkflow' => $id->idRadiRadicado]);
+        $status = WfProceso::findOne(['order_wfProceso' => 3, 'idwfWorkflow' => $id->idRadiRadicado]);
+        if($status_end->estadoWfProceso == 10) {
+            $status->estadoWfProceso = 10;
+            $status->save();
+        }
+    }
+
+    public function actionAgregarAnexo(){
+        $id = WfProceso::findOne(['idRadiRadicado' => 6]);
+        $status = WfProceso::findOne(['order_wfProceso' => 4, 'idwfWorkflow' => $id->idRadiRadicado]);
+        $status->estadoWfProceso = 10;
+        $status->save();
+    }
+
+    public function actionAsignarExpediente(){
+        $id = WfProceso::findOne(['idRadiRadicado' => 6]);
+        $status_end = WfProceso::findOne(['order_wfProceso' => 4, 'idwfWorkflow' => $id->idRadiRadicado]);
+        $status = WfProceso::findOne(['order_wfProceso' => 5, 'idwfWorkflow' => $id->idRadiRadicado]);
+        if($status_end->estadoWfProceso == 10) {
+            $status->estadoWfProceso = 10;
+            $status->save();
+        }
+    }
+
+    public function actionVodo(){
+        $id = WfProceso::findOne(['idRadiRadicado' => 6]);
+        $status_end1 = WfProceso::findOne(['order_wfProceso' => 3, 'idwfWorkflow' => $id->idRadiRadicado]);
+        $status_end = WfProceso::findOne(['order_wfProceso' => 5, 'idwfWorkflow' => $id->idRadiRadicado]);
+        $status = WfProceso::findOne(['order_wfProceso' => 6, 'idwfWorkflow' => $id->idRadiRadicado]);
+        $status1 = WfProceso::findOne(['order_wfProceso' => 7, 'idwfWorkflow' => $id->idRadiRadicado]);
+        if($status_end->estadoWfProceso == 10 && $status_end1->estadoWfProceso == 10) {
+            $status->estadoWfProceso = 10;
+            $status->save();
+            $status1->estadoWfProceso = 10;
+            $status1->save();
+        }
+    }
+
+    public function actionDevolverRadicado(){
+        $validacion = true; 
+        $id = WfProceso::findOne(['idRadiRadicado' => 6]);
+        $status = WfProceso::findOne(['order_wfProceso' => 8, 'idwfWorkflow' => $id->idRadiRadicado]);
+        $status_end = WfProceso::findOne(['order_wfProceso' => 7, 'idwfWorkflow' => $id->idRadiRadicado]);
+        if ($validacion ) {
+            if($status_end->estadoWfProceso == 10) {
+                $status->estadoWfProceso = 10;
+                $status->save();
+            }
+        } else {
+            $status_end1 = WfProceso::findOne(['order_wfProceso' => 6, 'idwfWorkflow' => $id->idRadiRadicado]);
+            $status_end->estadoWfProceso = 0;
+            $status_end->save();
+            $status_end1->estadoWfProceso = 0;
+            $status_end1->save();
+        }
+    }
+
 }

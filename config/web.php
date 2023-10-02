@@ -20,6 +20,28 @@ $config = [
             'class' => 'app\components\WorkflowDbSource', // La clase de tu componente
             // Otras configuraciones de tu componente
         ],
+        'my_workflow_source' => [
+            'class'            => 'raoul2000\workflow\source\file\WorkflowFileSource',
+  
+            // Cache component name
+            'definitionCache'  => 'cache',
+  
+            // load workflow as PHP class from the @app/models/workflows namespace
+            'definitionLoader' => [
+                'class'      => 'raoul2000\workflow\source\file\PhpClassLoader',
+                'namespace'  => '@app/models/workflows'
+            ],
+  
+            // workflow provided by PHP class will be defined as a minimal array
+            'parser'           => 'raoul2000\workflow\source\file\MinimalArrayParser',          
+  
+             // we provide our own implementation for simple workflow base objects
+            'classMap'        => [
+                //self::TYPE_WORKFLOW   => 'my\custom\implementation\Workflow',
+                //self::TYPE_STATUS     => 'my\custom\implementation\Status',
+                //self::TYPE_TRANSITION => 'my\custom\implementation\Transition'
+            ]
+        ],
         'cache' => [
             'class' => 'yii\caching\FileCache',
         ],
